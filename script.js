@@ -109,6 +109,7 @@ function updateScenes() {
     const orbitDistanceLimit = shortSide < 700 ? shortSide * 0.29 : 188;
     const cellSpreadScale = Math.min(1, shortSide / 760);
     thinkButton.classList.toggle("is-at-return", isReturnMorphing);
+    thinkButton.classList.toggle("is-mobile-return", isReturnMorphing && usesMobileReturnMode());
     updateIntro();
     updateReturnButton(currentIndex, isReturnMorphing ? settledProgress : 0);
 
@@ -227,9 +228,28 @@ function updateReturnButton(currentIndex, progress) {
         thinkButton.style.setProperty("--return-button-x", "0px");
         thinkButton.style.setProperty("--return-button-y", "0px");
         thinkButton.style.setProperty("--think-font-size", "");
+        thinkButton.style.setProperty("opacity", "");
         finalPanel?.style.setProperty("--return-h2-opacity", "0");
+        finalPanel?.style.setProperty("--return-h2-y", "18px");
+        finalPanel?.style.setProperty("--return-h2-scale", "0.88");
         finalPanel?.style.setProperty("--return-detail-opacity", "0");
         finalPanel?.style.setProperty("--return-detail-y", "18px");
+        return;
+    }
+
+    const labelProgress = smoothStep(clamp(progress / 0.72, 0, 1));
+    const detailProgress = smoothStep(clamp((progress - 0.62) / 0.38, 0, 1));
+
+    if (usesMobileReturnMode()) {
+        thinkButton.style.setProperty("--return-button-x", "0px");
+        thinkButton.style.setProperty("--return-button-y", "0px");
+        thinkButton.style.setProperty("--think-font-size", "");
+        thinkButton.style.setProperty("opacity", (1 - labelProgress).toFixed(3));
+        finalPanel.style.setProperty("--return-h2-opacity", labelProgress.toFixed(3));
+        finalPanel.style.setProperty("--return-h2-y", `${((1 - labelProgress) * 18).toFixed(2)}px`);
+        finalPanel.style.setProperty("--return-h2-scale", (0.86 + labelProgress * 0.14).toFixed(3));
+        finalPanel.style.setProperty("--return-detail-opacity", detailProgress.toFixed(3));
+        finalPanel.style.setProperty("--return-detail-y", `${((1 - detailProgress) * 18).toFixed(2)}px`);
         return;
     }
 
@@ -243,8 +263,6 @@ function updateReturnButton(currentIndex, progress) {
     const portraitTitleFontSize = Math.min(width * 0.25, height * 0.14);
     const titleFontSize = width < height ? Math.max(cssTitleFontSize, portraitTitleFontSize) : cssTitleFontSize;
     const baseFontSize = width <= 820 ? 12.48 : 13.76;
-    const labelProgress = smoothStep(clamp(progress / 0.72, 0, 1));
-    const detailProgress = smoothStep(clamp((progress - 0.62) / 0.38, 0, 1));
     const fontSize = baseFontSize + (titleFontSize - baseFontSize) * labelProgress;
 
     thinkButton.style.setProperty("--return-button-x", `${(targetX * labelProgress).toFixed(2)}px`);
@@ -300,6 +318,10 @@ function getOriginDotTarget() {
         y: rect.top + rect.height / 2,
         size
     };
+}
+
+function usesMobileReturnMode() {
+    return window.matchMedia("(pointer: coarse), (hover: none)").matches;
 }
 
 function getCurrentPanelIndex() {

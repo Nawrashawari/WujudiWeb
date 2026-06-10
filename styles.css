@@ -622,10 +622,11 @@ h2 {
 
 .final-panel h2 {
     margin-bottom: clamp(18px, 3vh, 32px);
-    font-size: clamp(5rem, min(18vw, 15vh), 10rem);
+    font-size: clamp(5rem, 15vh, 10rem);
     line-height: 0.86;
     opacity: var(--return-h2-opacity, 0);
-    transition: opacity 260ms ease;
+    transform: translateY(var(--return-h2-y, 0px)) scale(var(--return-h2-scale, 1));
+    transition: opacity 260ms ease, transform 420ms ease;
 }
 
 .final-panel .kicker,
@@ -737,7 +738,7 @@ h2 {
     }
 
     .final-panel h2 {
-        font-size: clamp(5.1rem, min(24vw, 14vh), 8.5rem);
+        font-size: clamp(5.1rem, 24vw, 8.5rem);
     }
 
     .lead,
@@ -828,7 +829,7 @@ h2 {
     }
 
     .final-panel h2 {
-        font-size: clamp(4.8rem, min(25vw, 13vh), 7rem);
+        font-size: clamp(4.8rem, 25vw, 7rem);
     }
 
     .lead,
