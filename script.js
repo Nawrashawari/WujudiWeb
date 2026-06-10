@@ -327,9 +327,10 @@ function usesMobileReturnMode() {
 function getCurrentPanelIndex() {
     let closestIndex = 0;
     let closestDistance = Infinity;
+    const currentY = window.scrollY;
 
     panels.forEach((panel, index) => {
-        const distance = Math.abs(panel.getBoundingClientRect().top);
+        const distance = Math.abs(panel.offsetTop - currentY);
 
         if (distance < closestDistance) {
             closestDistance = distance;
@@ -338,6 +339,18 @@ function getCurrentPanelIndex() {
     });
 
     return closestIndex;
+}
+
+function scrollToPanel(index) {
+    const panel = panels[index];
+    if (!panel) return;
+
+    const targetY = panel.offsetTop;
+
+    window.scrollTo({
+        top: targetY,
+        behavior: "smooth"
+    });
 }
 
 function advanceThought() {
@@ -350,10 +363,7 @@ function advanceThought() {
     const nextIndex = currentIndex >= panels.length - 1 ? 0 : currentIndex + 1;
 
     isThinkAdvance = true;
-    panels[nextIndex].scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-    });
+    scrollToPanel(nextIndex);
 }
 
 function drawBackground() {
