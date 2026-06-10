@@ -104,6 +104,10 @@ function updateScenes() {
     const settledElapsed = isScrollSettled ? Math.max(0, time - settledAt - 180) : 0;
     const settledProgress = smoothStep(clamp(settledElapsed / 2200, 0, 1));
     const isReturnMorphing = isScrollSettled && panels[currentIndex].classList.contains("final-panel");
+    const shortSide = Math.min(width, height);
+    const visualDistanceLimit = shortSide < 700 ? shortSide * 0.28 : 190;
+    const orbitDistanceLimit = shortSide < 700 ? shortSide * 0.29 : 188;
+    const cellSpreadScale = Math.min(1, shortSide / 760);
     thinkButton.classList.toggle("is-at-return", isReturnMorphing);
     updateIntro();
     updateReturnButton(currentIndex, isReturnMorphing ? settledProgress : 0);
@@ -150,8 +154,8 @@ function updateScenes() {
         panel.style.setProperty("--wave-opacity", (0.18 + transition * 0.82).toFixed(3));
         panel.style.setProperty("--branch-grow", (0.08 + transition * 0.92).toFixed(3));
         panel.style.setProperty("--network-grow", (0.12 + transition * 0.88).toFixed(3));
-        const dualDistance = 42 + (1 - transition) * 128;
-        const orbitRadius = 92 + transition * 96;
+        const dualDistance = Math.min(42 + (1 - transition) * 128, visualDistanceLimit);
+        const orbitRadius = Math.min(92 + transition * 96, orbitDistanceLimit);
         const orbitAngle = transition * 330 + time * 0.018;
 
         panel.style.setProperty("--dual-distance", `${dualDistance.toFixed(2)}px`);
@@ -164,7 +168,7 @@ function updateScenes() {
         panel.style.setProperty("--orbit-radius-b", `${(orbitRadius * 0.72).toFixed(2)}px`);
         panel.style.setProperty("--orbit-scale", (0.74 + transition * 0.28).toFixed(3));
         panel.style.setProperty("--orbit-tilt", `${(transition * 64 - 18).toFixed(2)}deg`);
-        const mirrorDistance = 34 + (1 - transition) * 156;
+        const mirrorDistance = Math.min(34 + (1 - transition) * 156, visualDistanceLimit);
         panel.style.setProperty("--mirror-distance", `${mirrorDistance.toFixed(2)}px`);
         panel.style.setProperty("--mirror-distance-negative", `${(-mirrorDistance).toFixed(2)}px`);
         panel.style.setProperty("--mirror-return", `${(12 + transition * 58).toFixed(2)}deg`);
@@ -187,8 +191,8 @@ function updateScenes() {
 
             cells.forEach((cell, cellIndex) => {
                 const [offsetX, offsetY] = cellOffsets[cellIndex] || [0, 0];
-                cell.style.setProperty("--cell-x", `${(offsetX * scatter).toFixed(2)}px`);
-                cell.style.setProperty("--cell-y", `${(offsetY * scatter).toFixed(2)}px`);
+                cell.style.setProperty("--cell-x", `${(offsetX * cellSpreadScale * scatter).toFixed(2)}px`);
+                cell.style.setProperty("--cell-y", `${(offsetY * cellSpreadScale * scatter).toFixed(2)}px`);
                 cell.style.setProperty("--cell-scale", (0.68 + transition * 1.18).toFixed(3));
             });
         }
@@ -235,8 +239,10 @@ function updateReturnButton(currentIndex, progress) {
     const buttonBaseY = height - buttonBottom - thinkButton.offsetHeight / 2;
     const targetX = titleRect.left + titleRect.width / 2 - width / 2;
     const targetY = titleRect.top + titleRect.height / 2 - buttonBaseY;
-    const titleFontSize = parseFloat(window.getComputedStyle(finalTitle).fontSize);
-    const baseFontSize = 13.76;
+    const cssTitleFontSize = parseFloat(window.getComputedStyle(finalTitle).fontSize);
+    const portraitTitleFontSize = Math.min(width * 0.25, height * 0.14);
+    const titleFontSize = width < height ? Math.max(cssTitleFontSize, portraitTitleFontSize) : cssTitleFontSize;
+    const baseFontSize = width <= 820 ? 12.48 : 13.76;
     const labelProgress = smoothStep(clamp(progress / 0.72, 0, 1));
     const detailProgress = smoothStep(clamp((progress - 0.62) / 0.38, 0, 1));
     const fontSize = baseFontSize + (titleFontSize - baseFontSize) * labelProgress;
